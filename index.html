@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Movie Ticket App</title>
+  <style>
+    /* Add your custom CSS styles here */
+  </style>
+</head>
+<body>
+  <div id="movieDetails">
+    <h2>Movie Details</h2>
+    <img id="moviePoster" src="" alt="Movie Poster">
+    <h3 id="movieTitle"></h3>
+    <p id="movieRuntime"></p>
+    <p id="movieShowtime"></p>
+    <p id="movieTickets"></p>
+    <div id="ticketCounter">
+      <label for="ticketInput">Number of Tickets:</label>
+      <input type="number" id="ticketInput" min="1" value="1">
+    </div>
+    <button id="buyTicketBtn">Buy Ticket</button>
+  </div>
+  
+  <div id="movieMenu">
+    <h2>Movie Menu</h2>
+    <ul id="films"></ul>
+  </div>
+
+  <script>
+    const baseUrl = 'http://localhost:3000';
+
+    // Function to make a GET request to retrieve movie details by ID
+    function getMovieDetails(movieId) {
+      return fetch(`${baseUrl}/films/${movieId}`)
+        .then(response => response.json())
+        .then(movie => {
+          // Update the movie details on the page
+          console.log("Movie Details:", movie);
+          document.getElementById('movieDetails').dataset.movieId = movie.id;
+          document.getElementById('moviePoster').src = movie.poster;
+          document.getElementById('movieTitle').textContent = movie.title;
+          document.getElementById('movieRuntime').textContent = `Runtime: ${movie.runtime} minutes`;
+          document.getElementById('movieShowtime').textContent = `Showtime: ${movie.showtime}`;
+          const availableTickets = movie.capacity - movie.tickets_sold;
+          document.getElementById('movieTickets').textContent = `Available Tickets: ${availableTickets}`;
+          return movie;
+        })
+        .catch(error => {
+          console.error('Error fetching movie details:', error);
+        });
+    }
+
+    // Function to make a GET request to retrieve all movies
+    function getAllMovies() {
+      return fetch(`${baseUrl}/films`)
+        .then(response => response.json())
+        .then(movies => {
+          // Populate the movie menu on the page
+          console.log("All Movies:", movies);
+          const filmsList = document.getElementById('films');
+          movies.forEach(movie => {
+            const li = document.createElement('li');
+            li.classList.add('film', 'item');
+            li.textContent = movie.title;
+            li.addEventListener('click', () => {
+              getMovieDetails(movie.id);
+            });
+            filmsList.appendChild(li);
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching all movies:', error);
+        });
+    }
+
+    // Function to handle buying a ticket for a movie
+    function buyTicket(movie) {
+      const availableTickets = movie.capacity - movie.tickets_sold;
+      const selectedTickets = parseInt(document.getElementById('ticketInput').value);
+      if (availableTickets >= selectedTickets) {
+        movie.tickets_sold += selectedTickets;
+        const updatedTickets = availableTickets - selectedTickets;
+        document.getElementById('movieTickets').textContent = `Available Tickets: ${updatedTickets}`;
+      } else {
+        alert('Sorry, the showing is sold out!');
+      }
+    }
+
+    // Event listener for the "Buy Ticket" button
+    document.getElementById('buyTicketBtn').addEventListener('click', () => {
+      const movieId = document.getElementById('movieDetails').dataset.movieId;
+      getMovieDetails(movieId)
+        .then(movie => {
+          buyTicket(movie);
+        });
+    });
+
+    // Fetch all movies and populate the movie menu when the page loads
+    getAllMovies();
+  </script>
+</body>
+</html>
