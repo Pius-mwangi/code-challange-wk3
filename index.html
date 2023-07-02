@@ -3,33 +3,88 @@
 <head>
   <title>Movie Ticket App</title>
   <style>
-    /* Add your custom CSS styles here */
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    #container {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    #movieMenu {
+      flex: 1;
+      padding-right: 20px;
+    }
+
+    #movieDetails {
+      flex: 2;
+    }
+
+    h2 {
+      margin: 0;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .film {
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .film:hover {
+      background-color: #eee;
+    }
+
+    #moviePoster {
+      width: 300px;
+      height: auto;
+    }
+
+    #ticketCounter {
+      margin-top: 10px;
+    }
+
+    #buyTicketBtn {
+      margin-top: 10px;
+    }
+
+    .soldOut {
+      color: red;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <div id="movieDetails">
-    <h2>Movie Details</h2>
-    <img id="moviePoster" src="" alt="Movie Poster">
-    <h3 id="movieTitle"></h3>
-    <p id="movieRuntime"></p>
-    <p id="movieShowtime"></p>
-    <p id="movieTickets"></p>
-    <div id="ticketCounter">
-      <label for="ticketInput">Number of Tickets:</label>
-      <input type="number" id="ticketInput" min="1" value="1">
+  <div id="container">
+    <div id="movieMenu">
+      <h2>Movie Menu</h2>
+      <ul id="films"></ul>
     </div>
-    <button id="buyTicketBtn">Buy Ticket</button>
-  </div>
-  
-  <div id="movieMenu">
-    <h2>Movie Menu</h2>
-    <ul id="films"></ul>
-  </div>
 
+    <div id="movieDetails">
+      <h2>Movie Details</h2>
+      <img id="moviePoster" src="" alt="Movie Poster">
+      <h3 id="movieTitle"></h3>
+      <p id="movieRuntime"></p>
+      <p id="movieShowtime"></p>
+      <p id="movieTickets"></p>
+      <div id="ticketCounter">
+        <label for="ticketInput">Number of Tickets:</label>
+        <input type="number" id="ticketInput" min="1" value="1">
+      </div>
+      <button id="buyTicketBtn">Buy Ticket</button>
+    </div>
+  </div>
   <script>
     const baseUrl = 'http://localhost:3000';
 
-    // Function to make a GET request to retrieve movie details by ID
+    // Fetch movie details by ID
     function getMovieDetails(movieId) {
       return fetch(`${baseUrl}/films/${movieId}`)
         .then(response => response.json())
@@ -42,61 +97,17 @@
           document.getElementById('movieRuntime').textContent = `Runtime: ${movie.runtime} minutes`;
           document.getElementById('movieShowtime').textContent = `Showtime: ${movie.showtime}`;
           const availableTickets = movie.capacity - movie.tickets_sold;
-          document.getElementById('movieTickets').textContent = `Available Tickets: ${availableTickets}`;
-          return movie;
+          const ticketsText = availableTickets > 0 ? `Tickets Available: ${availableTickets}` : 'Sold Out';
+          document.getElementById('movieTickets').textContent = ticketsText;
         })
-        .catch(error => {
-          console.error('Error fetching movie details:', error);
-        });
+        .catch(error => console.log('Error:', error));
     }
 
-    // Function to make a GET request to retrieve all movies
-    function getAllMovies() {
-      return fetch(`${baseUrl}/films`)
-        .then(response => response.json())
-        .then(movies => {
-          // Populate the movie menu on the page
-          console.log("All Movies:", movies);
-          const filmsList = document.getElementById('films');
-          movies.forEach(movie => {
-            const li = document.createElement('li');
-            li.classList.add('film', 'item');
-            li.textContent = movie.title;
-            li.addEventListener('click', () => {
-              getMovieDetails(movie.id);
-            });
-            filmsList.appendChild(li);
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching all movies:', error);
-        });
-    }
+  
 
-    // Function to handle buying a ticket for a movie
-    function buyTicket(movie) {
-      const availableTickets = movie.capacity - movie.tickets_sold;
-      const selectedTickets = parseInt(document.getElementById('ticketInput').value);
-      if (availableTickets >= selectedTickets) {
-        movie.tickets_sold += selectedTickets;
-        const updatedTickets = availableTickets - selectedTickets;
-        document.getElementById('movieTickets').textContent = `Available Tickets: ${updatedTickets}`;
-      } else {
-        alert('Sorry, the showing is sold out!');
-      }
-    }
 
-    // Event listener for the "Buy Ticket" button
-    document.getElementById('buyTicketBtn').addEventListener('click', () => {
-      const movieId = document.getElementById('movieDetails').dataset.movieId;
-      getMovieDetails(movieId)
-        .then(movie => {
-          buyTicket(movie);
-        });
-    });
 
-    // Fetch all movies and populate the movie menu when the page loads
-    getAllMovies();
-  </script>
-</body>
-</html>
+
+
+
+   
