@@ -88,45 +88,44 @@
     const baseUrl = 'http://localhost:3000';
 
     // Fetch movie details by ID
-    function getMovieDetails(movieId) {
-      return fetch(`${baseUrl}/films/${movieId}`)
-        .then(response => response.json())
-        .then(movie => {
-          // Update the movie details on the page
-          console.log("Movie Details:", movie);
-          document.getElementById('movieDetails').dataset.movieId = movie.id;
-          document.getElementById('moviePoster').src = movie.poster;
-          document.getElementById('movieTitle').textContent = movie.title;
-          document.getElementById('movieRuntime').textContent = `Runtime: ${movie.runtime} minutes`;
-          document.getElementById('movieShowtime').textContent = `Showtime: ${movie.showtime}`;
-          const availableTickets = movie.capacity - movie.tickets_sold;
-          const ticketsText = availableTickets > 0 ? `Tickets Available: ${availableTickets}` : 'Sold Out';
-          document.getElementById('movieTickets').textContent = ticketsText;
-        })
-        .catch(error => console.log('Error:', error));
-    }
+function getMovieDetails(movieId) {
+  return fetch(`${baseUrl}/films/${movieId}`)
+    .then(response => response.json())
+    .then(movie => {
+      // Update the movie details on the page
+      console.log("Movie Details:", movie);
+      document.getElementById('movieDetails').dataset.movieId = movie.id;
+      document.getElementById('moviePoster').src = movie.poster;
+      document.getElementById('movieTitle').textContent = movie.title;
+      document.getElementById('movieRuntime').textContent = `Runtime: ${movie.runtime} minutes`;
+      document.getElementById('movieShowtime').textContent = `Showtime: ${movie.showtime}`;
+      const availableTickets = movie.capacity - movie.tickets_sold;
+      const ticketsText = availableTickets > 0 ? `Tickets Available: ${availableTickets}` : 'Sold Out';
+      document.getElementById('movieTickets').textContent = ticketsText;
+    })
+    .catch(error => console.log('Error:', error));
+}
 
-    // Fetch all movies and populate the movie menu when the page loads
-    function getAllMovies() {
-      return fetch(`${baseUrl}/films`)
-        .then(response => response.json())
-        .then(movies => {
-          // Update the movie menu on the page
-          console.log("All Movies:", movies);
-          const filmsList = document.getElementById('films');
-          filmsList.innerHTML = '';
-          movies.forEach(movie => {
-            const filmItem = document.createElement('li');
-            filmItem.classList.add('film');
-            filmItem.textContent = movie.title;
-            filmItem.addEventListener('click', () => getMovieDetails(movie.id));
-            filmsList.appendChild(filmItem);
-          });
-        })
-        .catch(error => console.log('Error:', error));
-    }
+// Fetch all movies and populate the movie menu when the page loads
+function getAllMovies() {
+  return fetch(`${baseUrl}/films`)
+    .then(response => response.json())
+    .then(movies => {
+      // Update the movie menu on the page
+      console.log("All Movies:", movies);
+      const filmsList = document.getElementById('films');
+      filmsList.innerHTML = '';
+      movies.forEach(movie => {
+        const filmItem = document.createElement('li');
+        filmItem.classList.add('film');
+        filmItem.textContent = movie.title;
+        filmItem.addEventListener('click', () => getMovieDetails(movie.id));
+        filmsList.appendChild(filmItem);
+      });
+    })
+    .catch(error => console.log('Error:', error));
+}
 
-    // Buy ticket for the selected movie
    // Buy ticket for the selected movie
 function buyTicket() {
   const ticketCount = parseInt(document.getElementById('ticketInput').value);
